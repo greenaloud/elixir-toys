@@ -9,6 +9,7 @@ defmodule UserReg.Application do
   def start(_type, _args) do
     children = [
       Postgres.Repo,
+      { UserReg.Parser, "user_data.csv" }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

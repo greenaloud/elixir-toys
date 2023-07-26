@@ -11,8 +11,14 @@ defmodule Postgres.User do
 
   def changeset(struct, params) do
     struct
-    |> cast(params, [:name, :email, :phone_number])
+    |> cast(params, [:name, :email, :gender, :phone_number])
     |> validate_required([:name, :email, :phone_number, :gender])
     |> validate_length(:email, min: 5)
+  end
+
+  def sign_up(params) do
+    %Postgres.User{}
+    |> changeset(params)
+    |> Postgres.Repo.insert()
   end
 end
