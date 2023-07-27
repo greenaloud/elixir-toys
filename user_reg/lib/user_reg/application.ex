@@ -9,6 +9,7 @@ defmodule UserReg.Application do
   def start(_type, _args) do
     children = [
       Postgres.Repo,
+      UserReg.WorkerSupervisor,
       { UserReg.Parser, "user_data.csv" }
     ]
 

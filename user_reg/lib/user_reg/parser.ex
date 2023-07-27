@@ -17,13 +17,14 @@ defmodule UserReg.Parser do
 
   def init(file_path) do
     rows = File.stream!(file_path) |> CSV.decode(headers: true) |> Enum.to_list()
+    Process.send_after(self(), :kickoff, 0)
     {:ok, rows}
   end
 
-  def handle_call(:kickoff, _) do
+  def handle_info(:kickoff, state) do
     1..3
     |> Enum.each(fn _ -> UserReg.WorkerSupervisor.add_worker() end)
-    {:ok, 3}
+    {:noreply, state}
   end
 
   def handle_call(:state, _from, state) do
