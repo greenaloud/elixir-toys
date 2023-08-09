@@ -9,11 +9,31 @@ defmodule ParserManager.Queue do
     GenServer.cast(__MODULE__, {:push, message})
   end
 
+  def push_list(datas) do
+    GenServer.cast(__MODULE__, {:push_list, datas})
+  end
+
+  def pop() do
+    GenServer.call(__MODULE__, :pop)
+  end
+
   def init(:ok) do
     {:ok, []}
   end
 
   def handle_cast({:push, message}, state) do
     {:noreply, state ++ [message]}
+  end
+
+  def handle_cast({:push_list, datas}, state) do
+    {:noreply, Enum.concat(state, datas)}
+  end
+
+  def handle_call(:pop, _from, []) do
+    {:reply, nil, []}
+  end
+
+  def handle_call(:pop, _from, [data | rest]) do
+    {:reply, data, rest}
   end
 end

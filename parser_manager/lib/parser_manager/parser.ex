@@ -1,19 +1,18 @@
 defmodule ParserManager.Parser do
   use GenServer
 
-  def start_link(file_path) do
-    GenServer.start_link(__MODULE__, file_path, name: __MODULE__)
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
 
-  def init(file_path) do
-    result = csv_parse(file_path)
-    {:ok, result}
+  def init(:no_args) do
+    rows = File.stream!('user_data.csv') |> CSV.decode(headers: true) |> Enum.to_list()
+    Process.send_after(self(), :push_to_queue, 0)
+    {:ok, rows}
   end
 
-  def csv_parse(file_path) do
-    file_path
-    # |> File.stream!()
-    # |> CSV.decode()
-    # |> Enum.map(fn [name, age] -> {name, String.to_integer(age)} end)
+  def handle_call(:push_to_queue, _from, rows) do
+    ParserManager.Queue.push_list(rows)
+    {:stop, :normal, nil}
   end
 end
