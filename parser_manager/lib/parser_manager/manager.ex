@@ -8,8 +8,8 @@ defmodule ParserManager.Manager do
   def init(:ok) do
     children = [
       ParserManager.Parser,
-      ParserManager.Register,
       ParserManager.Reporter,
+      ParserManager.Register,
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

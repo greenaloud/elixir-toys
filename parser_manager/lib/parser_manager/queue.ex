@@ -18,7 +18,13 @@ defmodule ParserManager.Queue do
   end
 
   def init(:ok) do
+    Process.send_after(self(), :kick_off, 0)
     {:ok, []}
+  end
+
+  def handle_info(:kick_off, state) do
+    ParserManager.Parser.push_rows_to_queue()
+    {:noreply, state}
   end
 
   def handle_cast({:push, message}, state) do
