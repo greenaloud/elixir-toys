@@ -7,9 +7,9 @@ defmodule ParserManager.Manager do
 
   def init(:ok) do
     children = [
-      ParserManager.Parser,
-      ParserManager.Reporter,
       ParserManager.Register,
+      ParserManager.Parser,
+      # ParserManager.Reporter,
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

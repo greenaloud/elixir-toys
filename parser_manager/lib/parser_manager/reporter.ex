@@ -22,7 +22,15 @@ defmodule ParserManager.Reporter do
   end
 
   def init(:ok) do
-    {:ok, %{ worker_cout: 3 }}
+    worker_count = 3
+    Process.send_after(self(), {:kickoff, worker_count}, 0)
+    {:ok, %{ worker_cout: worker_count }}
+  end
+
+  def handle_info({:kickoff, worker_count}, state) do
+    1..worker_count
+    |> Enum.each(fn _ -> ParserManager.WorkerSupervisor.add_worker() end)
+    {:noreply, state}
   end
 
   def handle_cast({:report_success, message}, results) do

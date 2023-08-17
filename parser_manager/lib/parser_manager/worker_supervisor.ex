@@ -1,22 +1,14 @@
 defmodule ParserManager.WorkerSupervisor do
-  use GenServer
+  use DynamicSupervisor
 
   @me WorkerSupervisor
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :no_args, name: @me)
+    DynamicSupervisor.start_link(__MODULE__, :no_args, name: @me)
   end
 
   def init(:no_args) do
-    Process.send_after(self(), :kickoff, 0)
-    DynamicSupervisor.start_link(strategy: :one_for_one)
-  end
-
-  def handle_info(:kickoff, supervisor) do
-    worker_count = 3
-    1..worker_count
-    |> Enum.each(fn _ -> add_worker() end)
-    {:noreply, supervisor}
+    DynamicSupervisor.init(strategy: :one_for_one)
   end
 
   def add_worker() do

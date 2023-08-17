@@ -5,17 +5,19 @@ defmodule ParserManager.Parser do
     GenServer.start_link(__MODULE__, :no_args, name: __MODULE__)
   end
 
-  def push_rows_to_queue() do
-    GenServer.cast(__MODULE__, :push_to_queue)
-  end
-
   def init(:no_args) do
-    rows = File.stream!('user_data.csv') |> CSV.decode(headers: true) |> Enum.to_list()
+    # rows = File.stream!('user_data.csv') |> CSV.decode(headers: true) |> Enum.to_list()
+    rows = 1
+    Process.send_after(self(), :push_to_queue, 0)
     {:ok, rows}
   end
 
-  def handle_cast(:push_to_queue, rows) do
-    ParserManager.Queue.push_list(rows)
-    Process.exit(self(), :shutdown)
+  def handle_info(:push_to_queue, rows) do
+    IO.puts("[Parser] pushing to queue")
+    # IO.inspect(rows)
+    # IO.inspect(Enum.count(rows))
+    # ParserManager.Queue.push_list(rows)
+    ParserManager.Queue.push(rows)
+    {:noreply, rows}
   end
 end
