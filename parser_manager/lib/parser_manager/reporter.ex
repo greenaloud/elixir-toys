@@ -1,24 +1,26 @@
 defmodule ParserManager.Reporter do
   use GenServer
 
+  @me ParserManagerReporter
+
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: @me)
   end
 
   def report_success(message) do
-    GenServer.cast(__MODULE__, {:report_success, message})
+    GenServer.cast(@me, {:report_success, message})
   end
 
   def report_failure(message) do
-    GenServer.cast(__MODULE__, {:report_success, message})
+    GenServer.cast(@me, {:report_success, message})
   end
 
   def report_finish() do
-    GenServer.cast(__MODULE__, :report_finish)
+    GenServer.cast(@me, :report_finish)
   end
 
   def save_report_to_file(file_name) do
-    GenServer.call(__MODULE__, {:save_report_to_file, file_name})
+    GenServer.call(@me, {:save_report_to_file, file_name})
   end
 
   def init(:ok) do
@@ -48,7 +50,7 @@ defmodule ParserManager.Reporter do
   def handle_cast(:report_finish, results) do
     case results do
       %{worker_count: 1} ->
-        GenServer.cast(__MODULE__, {:save_report_to_file, "report.txt"})
+        GenServer.call(__MODULE__, {:save_report_to_file, "report.txt"})
         Process.exit(self(), :shutdown)
         {:noreply, results}
       _ ->

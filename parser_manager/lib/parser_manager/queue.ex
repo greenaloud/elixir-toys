@@ -1,20 +1,26 @@
 defmodule ParserManager.Queue do
   use GenServer
 
+  @me __MODULE__
+
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, :ok, name: @me)
+  end
+
+  def queue do
+    GenServer.call(@me, :queue)
   end
 
   def push(message) do
-    GenServer.cast(__MODULE__, {:push, message})
+    GenServer.cast(@me, {:push, message})
   end
 
   def push_list(datas) do
-    GenServer.cast(__MODULE__, {:push_list, datas})
+    GenServer.cast(@me, {:push_list, datas})
   end
 
   def pop() do
-    GenServer.call(__MODULE__, :pop)
+    GenServer.call(@me, :pop)
   end
 
   def init(:ok) do
@@ -26,21 +32,19 @@ defmodule ParserManager.Queue do
   end
 
   def handle_cast({:push_list, datas}, state) do
-    IO.puts("[Queue] pushing list to queue")
-    # Process.send_after(self(), :print_state, 0)
     {:noreply, Enum.concat(state, datas)}
   end
 
-  def handle_info(:print_state, state) do
+  def handle_call(:queue, _from, state) do
     IO.inspect(state)
-    {:noreply, state}
+    {:reply, :ok, state}
+  end
+
+  def handle_call(:pop, _from, [head|tail]) do
+    {:reply, head, tail}
   end
 
   def handle_call(:pop, _from, []) do
     {:reply, nil, []}
-  end
-
-  def handle_call(:pop, _from, [data | rest]) do
-    {:reply, data, rest}
   end
 end

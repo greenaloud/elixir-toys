@@ -13,10 +13,10 @@ defmodule ParserManager.Worker do
 
   def handle_info(:get_next_row, _) do
     case Queue.pop() do
+      {:ok, row} -> sign_up_user(row)
       nil ->
         ParserManager.Reporter.report_finish()
         {:stop, :normal, nil}
-      row -> sign_up_user(row)
     end
   end
 
