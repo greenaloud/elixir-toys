@@ -24,12 +24,12 @@ defmodule ParserManager.Worker do
     case Postgres.User.sign_up(params) do
       {:ok, _user} ->
         ParserManager.Reporter.report_success("User #{params["name"]} signed up successfully")
-        Process.send_after(self(), :get_next_row, 0)
+        send(self(), :get_next_row)
         {:noreply, nil}
 
       {:error, _changeset} ->
         ParserManager.Reporter.report_failure("User #{params["name"]} failed to sign up")
-        Process.send_after(self(), :get_next_row, 0)
+        send(self(), :get_next_row)
         {:noreply, nil}
     end
   end

@@ -26,7 +26,7 @@ defmodule ParserManager.Reporter do
   def init(:ok) do
     worker_count = 3
     Process.send_after(self(), {:kickoff, worker_count}, 0)
-    {:ok, %{ worker_cout: worker_count }}
+    {:ok, %{ worker_count: worker_count }}
   end
 
   def handle_info({:kickoff, worker_count}, state) do
@@ -50,8 +50,7 @@ defmodule ParserManager.Reporter do
   def handle_cast(:report_finish, results) do
     case results do
       %{worker_count: 1} ->
-        GenServer.call(__MODULE__, {:save_report_to_file, "report.txt"})
-        Process.exit(self(), :shutdown)
+        save_report_to_file("report.txt", results)
         {:noreply, results}
       _ ->
         new_results = Map.update(results, :worker_count, 0, fn worker_count -> worker_count - 1 end)
@@ -60,8 +59,7 @@ defmodule ParserManager.Reporter do
 
   end
 
-  def handle_call({:save_report_to_file, file_name}, _from, results) do
+  defp save_report_to_file(file_name, results) do
     File.write(file_name, inspect(results))
-    {:reply, :ok, results}
   end
 end
