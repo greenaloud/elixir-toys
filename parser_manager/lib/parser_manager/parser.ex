@@ -18,7 +18,10 @@ defmodule ParserManager.Parser do
   end
 
   def handle_info(:push_to_queue, rows) do
-    ParserManager.Queue.push_list(rows)
+    Enum.each(rows, fn row ->
+      ParserManager.Queue.push(row)
+    end)
+    # ParserManager.Queue.push_list(rows)
     {:noreply, rows}
   end
 
